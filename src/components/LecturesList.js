@@ -10,6 +10,8 @@ function LecturesList() {
   const [error, setError] = useState(null);
   const [selectedLectureId, setSelectedLectureId] = useState(null);
   const [isAddingLecture, setIsAddingLecture] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredLectures, setfilteredLectures] = useState([]);
 
   useEffect(() => {
     const fetchLectures = async () => {
@@ -29,6 +31,13 @@ function LecturesList() {
 
     fetchLectures();
   }, []);
+
+  useEffect(() => {
+    const filtered = lectures.filter((lecture) =>
+      lecture.title.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+    setfilteredLectures(filtered);
+  }, [searchQuery, lectures]);
 
   const handleEdit = (id) => {
     setSelectedLectureId(id);
@@ -69,6 +78,10 @@ function LecturesList() {
     console.log('Deleted Lecture with id:', id);
   };
 
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
   if (loading) {
     return <p>Loading lectures...</p>;
   }
@@ -96,8 +109,15 @@ function LecturesList() {
   return (
     <div>
       <h2>List of Lectures</h2>
+      <input
+        type="text"
+        placeholder="Search by title"
+        value={searchQuery}
+        onChange={handleSearchChange}
+      />
+
       <button onClick={handleOpenAddForm}>Add Lecture</button>
-      <Table data={lectures} columns={columns} />
+      <Table data={filteredLectures} columns={columns} />
       {selectedLectureId && (
         <LectureDetail
           lectureId={selectedLectureId}
